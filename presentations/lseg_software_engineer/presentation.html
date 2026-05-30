@@ -618,7 +618,7 @@
                     <div class="accent-rule"></div>
                     <h1>Senior <em>Python Developer</em></h1>
                     <p class="lead" style="margin-top:var(--gap-md)">Napat Sri-ampun (Gun)</p>
-                    <p class="body" style="color:var(--c-fg-3);margin-top:var(--gap-sm)">September 4, 2025</p>
+                    <p class="body" id="currentDate" style="color:var(--c-fg-3);margin-top:var(--gap-sm)">September 4, 2025</p>
                 </div>
                 <div class="pin-note">
                     <span class="line">01 / 26</span>
@@ -1177,6 +1177,7 @@
                 this.setupWheelNav();
                 this.buildNavDots();
                 this.setupInlineEditing();
+                this.setCurrentDate();
                 this.showSlide(0);
             }
 
@@ -1300,6 +1301,16 @@
 
             goToSlide(index) {
                 this.showSlide(index);
+            }
+
+            /* --- Set Current Date --- */
+            setCurrentDate() {
+                const el = document.getElementById('currentDate');
+                if (el) {
+                    const now = new Date();
+                    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+                    el.textContent = now.toLocaleDateString('en-US', options);
+                }
             }
 
             /* --- Inline Editing ---
