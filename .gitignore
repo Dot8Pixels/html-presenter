@@ -5,4 +5,6 @@ node_modules/
 .vercel/
 *.log
 .slide-previews/
+nul
+null
 .frontend-slides/
