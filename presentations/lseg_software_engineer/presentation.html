@@ -17,23 +17,24 @@
 
     <style>
         /* ===========================================
-           CSS CUSTOM PROPERTIES (VELLUM THEME)
-           Change these to adjust the whole look.
-           Vellum: monochromatic periwinkle-navy field
-           with warm chartreuse-yellow type.
+           CSS CUSTOM PROPERTIES (NAVY BLEND THEME)
+           Deep dark navy background, white body text,
+           warm golden-yellow headlines, magenta accents.
+           Optimized for full-screen presentation.
            =========================================== */
         :root {
-            /* --- Colors --- */
-            --c-bg: #2A3870;
-            --c-bg-alt: #343F80;
-            --c-bg-deep: #1F2858;
-            --c-bg-mid: #34407A;
-            --c-fg: #E8D85C;
-            --c-fg-2: rgba(232, 216, 92, 0.62);
-            --c-fg-3: rgba(232, 216, 92, 0.32);
-            --c-emphasis: #F5E168;
-            --c-accent: #3A7878;
-            --c-border: rgba(232, 216, 92, 0.20);
+            /* --- Core Colors --- */
+            --c-bg: #0B1424;            /* deep dark navy */
+            --c-bg-alt: #111B2E;         /* slightly lighter navy */
+            --c-bg-deep: #070E1A;        /* deepest navy for panels */
+            --c-bg-mid: #141F33;         /* mid navy for alternating */
+            --c-fg: #F5C842;             /* golden yellow for headlines */
+            --c-fg-2: rgba(255, 255, 255, 0.70);  /* white body text */
+            --c-fg-3: rgba(255, 255, 255, 0.35);  /* muted white */
+            --c-emphasis: #FFD866;        /* brighter yellow for emphasis */
+            --c-accent: #C7247A;          /* vibrant magenta for accents */
+            --c-accent-dim: rgba(199, 36, 122, 0.25);
+            --c-border: rgba(255, 255, 255, 0.08);
 
             /* --- Typography (authored at 1920×1080) --- */
             --font-display: 'Cormorant Garamond', Georgia, serif;
@@ -59,7 +60,7 @@
             --gap-sm: 16px;           /* 1.5vh @ 1080 */
 
             /* --- Stage --- */
-            --stage-bg: #1a1a2e;
+            --stage-bg: #060D1A;
             --slide-bg: var(--c-bg);
         }
 
@@ -198,14 +199,13 @@
         }
 
         /* ===========================================
-           VELLUM — DESIGN SYSTEM
-           Single periwinkle-navy field (#2A3870) on
-           every slide. Warm yellow type. Italic serif
-           headlines. Courier Prime annotations.
-           Completely still — zero motion.
+           NAVY BLEND — DESIGN SYSTEM
+           Deep dark navy canvas with subtle atmosphere.
+           White body text, golden-yellow serif headlines,
+           magenta accents. Clean, premium presentation feel.
            =========================================== */
 
-        /* --- Slide Layout --- */
+        /* --- Ambient background atmosphere for every slide --- */
         .slide {
             background: var(--c-bg);
             display: flex;
@@ -214,24 +214,51 @@
             justify-content: center;
             padding: var(--pad-y) var(--pad-x);
         }
+        /* Subtle glow atmosphere via pseudo-element */
+        .slide::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 600px 400px at 18% 82%, rgba(199, 36, 122, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 500px 500px at 82% 18%, rgba(245, 200, 66, 0.06) 0%, transparent 55%),
+                radial-gradient(ellipse 400px 400px at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+            z-index: 0;
+        }
+        .slide > * {
+            position: relative;
+            z-index: 1;
+        }
 
-        /* --- Kicker (Courier Prime mono in teal) --- */
+        /* --- Subtle frame with magenta corner accents --- */
+        .slide::after {
+            content: '';
+            position: absolute;
+            inset: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* --- Kicker (DM Sans uppercase in magenta) --- */
         .kicker {
-            font-family: var(--font-mono);
+            font-family: var(--font-body);
             font-size: var(--label-size);
-            font-weight: 400;
-            letter-spacing: 0.06em;
+            font-weight: 500;
+            letter-spacing: 0.12em;
             text-transform: uppercase;
             color: var(--c-accent);
             margin-bottom: var(--gap-md);
         }
 
-        /* --- Accent Rule (28px teal hairline) --- */
+        /* --- Accent Rule (magenta-gold gradient line) --- */
         .accent-rule {
-            width: 28px;
-            height: 1px;
-            background: var(--c-accent);
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--c-accent), var(--c-fg));
             margin: 0 auto var(--gap-md) auto;
+            border-radius: 1px;
         }
 
         /* --- Content Wrapper --- */
@@ -241,7 +268,7 @@
             width: 100%;
         }
 
-        /* --- Headlines (italic Cormorant Garamond in yellow) --- */
+        /* --- Headlines (italic Cormorant Garamond in golden yellow) --- */
         .display {
             font-family: var(--font-display);
             font-weight: 400;
@@ -283,14 +310,14 @@
             margin: 0 0 var(--gap-sm) 0;
         }
 
-        /* --- Emphasis inside headlines (roman + brighter yellow) --- */
+        /* --- Emphasis inside headlines (roman + brighter gold) --- */
         h1 em, .h1 em, h2 em, .h2 em, .display em {
             font-style: normal;
             font-weight: 600;
             color: var(--c-emphasis);
         }
 
-        /* --- Lead / Body (DM Sans) --- */
+        /* --- Lead / Body (DM Sans in white) --- */
         .lead {
             font-family: var(--font-body);
             font-weight: 300;
@@ -311,7 +338,13 @@
             max-width: 900px;
         }
 
-        /* --- Pin-Annotation (bottom-left, Courier Prime teal) --- */
+        /* --- Strong emphasis in body text uses gold --- */
+        .lead strong, .body strong {
+            color: var(--c-fg);
+            font-weight: 500;
+        }
+
+        /* --- Pin-Annotation (bottom-left, Courier Prime in magenta) --- */
         .pin-note {
             position: absolute;
             bottom: calc(var(--pad-y) * 0.9);
@@ -327,7 +360,7 @@
         }
         .pin-note .line { display: block; }
 
-        /* --- Bullet List (numbered with Courier Prime counters in teal) --- */
+        /* --- Bullet List (numbered with Courier Prime counters in magenta) --- */
         .list-num {
             list-style: none;
             counter-reset: list-counter;
@@ -378,6 +411,8 @@
             width: 100%;
             max-width: 1600px;
             gap: 0;
+            border-radius: 4px;
+            overflow: hidden;
         }
         .split-panel {
             flex: 1;
@@ -405,6 +440,7 @@
             line-height: 0.6;
             color: var(--c-accent);
             margin-bottom: var(--gap-sm);
+            opacity: 0.6;
         }
         .quote-text {
             font-family: var(--font-display);
@@ -431,7 +467,7 @@
             font-style: italic;
             font-size: 200px;
             line-height: 0.85;
-            color: var(--c-fg-3);
+            color: var(--c-accent-dim);
             margin-bottom: var(--gap-sm);
         }
 
@@ -473,6 +509,22 @@
             letter-spacing: 0.06em;
         }
 
+        /* === DECORATIVE CORNER ACCENTS (magenta) === */
+        .corner {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            border-color: var(--c-accent-dim);
+            border-style: solid;
+            pointer-events: none;
+            z-index: 2;
+            opacity: 0.5;
+        }
+        .corner.tl { top: 28px; left: 28px; border-width: 1px 0 0 1px; }
+        .corner.tr { top: 28px; right: 28px; border-width: 1px 1px 0 0; }
+        .corner.bl { bottom: 28px; left: 28px; border-width: 0 0 1px 1px; }
+        .corner.br { bottom: 28px; right: 28px; border-width: 0 1px 1px 0; }
+
         /* === NAV DOTS (deck chrome, outside slide system) === */
         .nav-dots {
             position: fixed;
@@ -482,19 +534,29 @@
             display: flex;
             gap: 8px;
             z-index: 999;
+            background: rgba(11, 20, 36, 0.6);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
         .nav-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: rgba(232, 216, 92, 0.25);
+            background: rgba(255, 255, 255, 0.15);
             border: none;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
             padding: 0;
         }
+        .nav-dot:hover {
+            background: rgba(199, 36, 122, 0.5);
+        }
         .nav-dot.active {
-            background: var(--c-fg);
+            background: var(--c-accent);
+            box-shadow: 0 0 8px rgba(199, 36, 122, 0.4);
         }
 
         /* === COUNTER === */
@@ -505,8 +567,12 @@
             font-family: var(--font-mono);
             font-size: 13px;
             letter-spacing: 0.03em;
-            color: var(--c-fg-3);
+            color: rgba(255, 255, 255, 0.3);
             z-index: 999;
+            background: rgba(11, 20, 36, 0.4);
+            padding: 4px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* === INLINE EDITING === */
@@ -535,6 +601,7 @@
             font-family: var(--font-mono);
             font-size: 13px;
             cursor: pointer;
+            box-shadow: 0 2px 12px rgba(199, 36, 122, 0.3);
         }
         .edit-toggle.show,
         .edit-toggle.active {
@@ -550,34 +617,39 @@
         .slide-title .content {
             max-width: 1300px;
         }
+        .slide-title .kicker {
+            font-size: 18px;
+            letter-spacing: 0.15em;
+            margin-bottom: var(--gap-lg);
+        }
 
         /* --- Agenda --- */
         .agenda-list {
             list-style: none;
             padding: 0;
-            margin: var(--gap-md) auto 0 auto;
+            margin: var(--gap-md) auto 40px auto;
             max-width: 700px;
         }
         .agenda-list li {
             font-family: var(--font-display);
             font-weight: 400;
             font-style: italic;
-            font-size: var(--h2-size);
-            line-height: 1.4;
+            font-size: 56px;
+            line-height: 1.3;
             color: var(--c-fg);
-            padding: var(--gap-sm) 0;
+            padding: 10px 0;
             border-bottom: 1px solid var(--c-border);
             text-align: center;
         }
         .agenda-list li:last-child { border-bottom: none; }
         .agenda-list li .num {
             font-family: var(--font-mono);
-            font-size: var(--label-size);
+            font-size: 13px;
             font-weight: 400;
             color: var(--c-accent);
-            letter-spacing: 0.06em;
+            letter-spacing: 0.10em;
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         /* --- Timeline / Company --- */
@@ -601,6 +673,14 @@
             font-size: var(--h3-size);
             color: var(--c-fg);
             margin-bottom: 4px;
+        }
+
+        /* --- Inline code / highlighted text in body --- */
+        .highlight-magenta {
+            color: var(--c-accent);
+        }
+        .highlight-gold {
+            color: var(--c-fg);
         }
 
     </style>
@@ -1373,7 +1453,7 @@
                     activeSlide.querySelectorAll('h1, h2, h3, p, li span, .kicker, .company-name, .company-role, .adv-text, .quote-text, .quote-attribution, .body, .lead').forEach(el => {
                         if (!el.closest('.pin-note') && !el.closest('.chrome-bar')) {
                             el.setAttribute('contenteditable', 'true');
-                            el.style.outline = '1px dashed rgba(232,216,92,0.3)';
+                            el.style.outline = '1px dashed rgba(199,36,122,0.4)';
                             el.style.borderRadius = '2px';
                             el.style.padding = '2px 4px';
                             el.style.cursor = 'text';
