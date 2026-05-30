@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Senior Python Developer — Napat Sri-ampun (Gun)</title>
+
+    <!-- ===========================================
+         FONTS
+         Cormorant Garamond (italic serif headlines)
+         DM Sans (body, lead)
+         Courier Prime (pin-notes, chrome, kickers)
+         =========================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ===========================================
+           CSS CUSTOM PROPERTIES (VELLUM THEME)
+           Change these to adjust the whole look.
+           Vellum: monochromatic periwinkle-navy field
+           with warm chartreuse-yellow type.
+           =========================================== */
+        :root {
+            /* --- Colors --- */
+            --c-bg: #2A3870;
+            --c-bg-alt: #343F80;
+            --c-bg-deep: #1F2858;
+            --c-bg-mid: #34407A;
+            --c-fg: #E8D85C;
+            --c-fg-2: rgba(232, 216, 92, 0.62);
+            --c-fg-3: rgba(232, 216, 92, 0.32);
+            --c-emphasis: #F5E168;
+            --c-accent: #3A7878;
+            --c-border: rgba(232, 216, 92, 0.20);
+
+            /* --- Typography (authored at 1920×1080) --- */
+            --font-display: 'Cormorant Garamond', Georgia, serif;
+            --font-body: 'DM Sans', system-ui, sans-serif;
+            --font-mono: 'Courier Prime', 'Courier New', monospace;
+
+            --title-size: 210px;      /* 11vw @ 1920 */
+            --h1-size: 134px;         /* 7vw @ 1920 */
+            --h2-size: 77px;          /* 4vw @ 1920 */
+            --h3-size: 46px;          /* 2.4vw @ 1920 */
+            --quote-size: 61px;       /* 3.2vw @ 1920 */
+            --lead-size: 29px;        /* 1.5vw @ 1920 */
+            --body-size: 20px;        /* 1.05vw @ 1920 */
+            --label-size: 14px;       /* 0.72vw @ 1920 */
+            --pin-size: 22px;         /* 1.15vw @ 1920 */
+            --stat-size: 106px;       /* 5.5vw @ 1920 */
+
+            /* --- Spacing --- */
+            --pad-x: 115px;           /* 6vw @ 1920 */
+            --pad-y: 65px;            /* 6vh @ 1080 */
+            --gap-lg: 54px;           /* 5vh @ 1080 */
+            --gap-md: 32px;           /* 3vh @ 1080 */
+            --gap-sm: 16px;           /* 1.5vh @ 1080 */
+
+            /* --- Stage --- */
+            --stage-bg: #1a1a2e;
+            --slide-bg: var(--c-bg);
+        }
+
+        /* ===========================================
+           FIXED 16:9 STAGE — viewport-base.css
+           Include in full. Slides authored at 1920×1080
+           and scaled uniformly to the viewport.
+           =========================================== */
+
+        /* 1. Lock the browser viewport */
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 2. Full-window deck viewport */
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+
+        /* 3. Fixed 16:9 design canvas.
+           JavaScript sets transform: translate(...) scale(...). */
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--slide-bg, #fff);
+        }
+
+        /* 4. Slides stack inside the fixed stage.
+           Content must be laid out at 1920×1080, not reflowed per device. */
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--slide-bg, #fff);
+        }
+
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+
+        /* 5. Keep media inside authored slide bounds */
+        img,
+        video,
+        canvas,
+        svg {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* 6. Presentation chrome stays outside the slide design system */
+        .deck-controls {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        /* 7. Print one fixed-size slide per page */
+        @media print {
+            html,
+            body {
+                width: 1920px;
+                height: auto;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-viewport {
+                position: static;
+                overflow: visible;
+                background: #fff;
+            }
+
+            .deck-stage {
+                position: static;
+                width: auto;
+                height: auto;
+                transform: none !important;
+                background: none;
+            }
+
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+
+            .slide:last-child {
+                break-after: auto;
+                page-break-after: auto;
+            }
+
+            .deck-controls {
+                display: none !important;
+            }
+        }
+
+        /* 8. Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        /* ===========================================
+           VELLUM — DESIGN SYSTEM
+           Single periwinkle-navy field (#2A3870) on
+           every slide. Warm yellow type. Italic serif
+           headlines. Courier Prime annotations.
+           Completely still — zero motion.
+           =========================================== */
+
+        /* --- Slide Layout --- */
+        .slide {
+            background: var(--c-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--pad-y) var(--pad-x);
+        }
+
+        /* --- Kicker (Courier Prime mono in teal) --- */
+        .kicker {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--c-accent);
+            margin-bottom: var(--gap-md);
+        }
+
+        /* --- Accent Rule (28px teal hairline) --- */
+        .accent-rule {
+            width: 28px;
+            height: 1px;
+            background: var(--c-accent);
+            margin: 0 auto var(--gap-md) auto;
+        }
+
+        /* --- Content Wrapper --- */
+        .content {
+            text-align: center;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        /* --- Headlines (italic Cormorant Garamond in yellow) --- */
+        .display {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--title-size);
+            line-height: 0.92;
+            letter-spacing: -0.01em;
+            color: var(--c-fg);
+        }
+
+        h1, .h1 {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--h1-size);
+            line-height: 0.95;
+            letter-spacing: -0.01em;
+            color: var(--c-fg);
+            margin: 0;
+        }
+
+        h2, .h2 {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--h2-size);
+            line-height: 1.05;
+            color: var(--c-fg);
+            margin: 0 0 var(--gap-md) 0;
+        }
+
+        h3, .h3 {
+            font-family: var(--font-display);
+            font-weight: 500;
+            font-style: italic;
+            font-size: var(--h3-size);
+            line-height: 1.15;
+            color: var(--c-fg);
+            margin: 0 0 var(--gap-sm) 0;
+        }
+
+        /* --- Emphasis inside headlines (roman + brighter yellow) --- */
+        h1 em, .h1 em, h2 em, .h2 em, .display em {
+            font-style: normal;
+            font-weight: 600;
+            color: var(--c-emphasis);
+        }
+
+        /* --- Lead / Body (DM Sans) --- */
+        .lead {
+            font-family: var(--font-body);
+            font-weight: 300;
+            font-size: var(--lead-size);
+            line-height: 1.6;
+            color: var(--c-fg-2);
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .body {
+            font-family: var(--font-body);
+            font-weight: 400;
+            font-size: var(--body-size);
+            line-height: 1.65;
+            color: var(--c-fg-2);
+            margin: 0 auto;
+            max-width: 900px;
+        }
+
+        /* --- Pin-Annotation (bottom-left, Courier Prime teal) --- */
+        .pin-note {
+            position: absolute;
+            bottom: calc(var(--pad-y) * 0.9);
+            left: var(--pad-x);
+            max-width: 420px;
+            font-family: var(--font-mono);
+            font-weight: 500;
+            font-size: var(--pin-size);
+            line-height: 1.5;
+            color: var(--c-accent);
+            letter-spacing: 0.01em;
+            text-align: left;
+        }
+        .pin-note .line { display: block; }
+
+        /* --- Bullet List (numbered with Courier Prime counters in teal) --- */
+        .list-num {
+            list-style: none;
+            counter-reset: list-counter;
+            padding: 0;
+            margin: var(--gap-md) auto 0 auto;
+            max-width: 800px;
+            text-align: left;
+        }
+        .list-num li {
+            counter-increment: list-counter;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            padding: var(--gap-sm) 0;
+            border-bottom: 1px solid var(--c-border);
+        }
+        .list-num li:last-child { border-bottom: none; }
+        .list-num li::before {
+            content: counter(list-counter, decimal-leading-zero) ".";
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            font-weight: 400;
+            color: var(--c-accent);
+            min-width: 2em;
+            letter-spacing: 0.02em;
+        }
+        .list-num li span {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            line-height: 1.5;
+            color: var(--c-fg-2);
+        }
+
+        /* --- Stat Value --- */
+        .stat-val {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--stat-size);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--c-fg);
+        }
+
+        /* --- Split layout (compare) --- */
+        .split {
+            display: flex;
+            width: 100%;
+            max-width: 1600px;
+            gap: 0;
+        }
+        .split-panel {
+            flex: 1;
+            padding: var(--pad-y) var(--pad-x);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .split-panel:first-child {
+            background: var(--c-bg-deep);
+        }
+        .split-panel:last-child {
+            background: var(--c-bg-mid);
+            border-left: 1px solid var(--c-border);
+        }
+
+        /* --- Quote Slide --- */
+        .quote-mark {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: 134px;
+            line-height: 0.6;
+            color: var(--c-accent);
+            margin-bottom: var(--gap-sm);
+        }
+        .quote-text {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--quote-size);
+            line-height: 1.25;
+            color: var(--c-fg);
+            max-width: 1100px;
+            margin: 0 auto var(--gap-md) auto;
+        }
+        .quote-attribution {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            font-weight: 400;
+            color: var(--c-accent);
+            letter-spacing: 0.06em;
+        }
+
+        /* --- Section Slide (big number + label) --- */
+        .section-number {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: 200px;
+            line-height: 0.85;
+            color: var(--c-fg-3);
+            margin-bottom: var(--gap-sm);
+        }
+
+        /* --- Grid for stats / cards --- */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap-lg);
+            max-width: 1200px;
+            margin: var(--gap-md) auto 0 auto;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--gap-lg);
+            max-width: 1400px;
+            margin: var(--gap-md) auto 0 auto;
+        }
+        .grid-item {
+            text-align: center;
+        }
+        .grid-item .emoji {
+            font-size: 48px;
+            display: block;
+            margin-bottom: var(--gap-sm);
+        }
+        .grid-item h3 {
+            margin-bottom: var(--gap-sm);
+        }
+        .grid-item .body {
+            max-width: 100%;
+        }
+
+        /* === CHROME BAR (for content slides that need framing) === */
+        .chrome-bar {
+            border-bottom: 1px solid var(--c-border);
+            padding-bottom: var(--gap-sm);
+            margin-bottom: var(--gap-md);
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--c-fg-3);
+            letter-spacing: 0.06em;
+        }
+
+        /* === NAV DOTS (deck chrome, outside slide system) === */
+        .nav-dots {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 999;
+        }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(232, 216, 92, 0.25);
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            padding: 0;
+        }
+        .nav-dot.active {
+            background: var(--c-fg);
+        }
+
+        /* === COUNTER === */
+        .slide-counter {
+            position: fixed;
+            bottom: 24px;
+            right: 32px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            letter-spacing: 0.03em;
+            color: var(--c-fg-3);
+            z-index: 999;
+        }
+
+        /* === INLINE EDITING === */
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+            cursor: pointer;
+        }
+        .edit-toggle {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 10001;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            background: var(--c-accent);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 14px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .edit-toggle.show,
+        .edit-toggle.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ===========================================
+           SLIDE-SPECIFIC LAYOUTS
+           =========================================== */
+
+        /* --- Title Slide --- */
+        .slide-title .content {
+            max-width: 1300px;
+        }
+
+        /* --- Agenda --- */
+        .agenda-list {
+            list-style: none;
+            padding: 0;
+            margin: var(--gap-md) auto 0 auto;
+            max-width: 700px;
+        }
+        .agenda-list li {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--h2-size);
+            line-height: 1.4;
+            color: var(--c-fg);
+            padding: var(--gap-sm) 0;
+            border-bottom: 1px solid var(--c-border);
+            text-align: center;
+        }
+        .agenda-list li:last-child { border-bottom: none; }
+        .agenda-list li .num {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            font-weight: 400;
+            color: var(--c-accent);
+            letter-spacing: 0.06em;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        /* --- Timeline / Company --- */
+        .company-block {
+            margin-bottom: var(--gap-md);
+        }
+        .company-block:last-child { margin-bottom: 0; }
+        .company-name {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            font-weight: 400;
+            color: var(--c-accent);
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: var(--gap-sm);
+        }
+        .company-role {
+            font-family: var(--font-display);
+            font-weight: 400;
+            font-style: italic;
+            font-size: var(--h3-size);
+            color: var(--c-fg);
+            margin-bottom: 4px;
+        }
+        .company-desc {
+            font-family: var(--font-body);
+            font-size: var(--body-size);
+            color: var(--c-fg-2);
+            line-height: 1.5;
+        }
+
+        /* --- Final Advice Grid --- */
+        .advice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--gap-md);
+            max-width: 1200px;
+            margin: var(--gap-md) auto 0 auto;
+            text-align: left;
+        }
+        .advice-item {
+            padding: var(--gap-sm) 0;
+            border-bottom: 1px solid var(--c-border);
+        }
+        .advice-item:last-child,
+        .advice-item:nth-last-child(2) {
+            border-bottom: none;
+        }
+        .advice-item .adv-icon {
+            font-family: var(--font-mono);
+            font-size: var(--label-size);
+            color: var(--c-accent);
+            letter-spacing: 0.06em;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .advice-item .adv-text {
+            font-family: var(--font-body);
+            font-size: var(--lead-size);
+            color: var(--c-fg);
+            font-weight: 300;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+
+            <!-- ===========================================
+                 SLIDE 1 — TITLE
+                 =========================================== -->
+            <section class="slide slide-title active">
+                <div class="content">
+                    <div class="kicker">LSEG · Analytics Center of Excellence</div>
+                    <div class="accent-rule"></div>
+                    <h1>Senior <em>Python Developer</em></h1>
+                    <p class="lead" style="margin-top:var(--gap-md)">Napat Sri-ampun (Gun)</p>
+                    <p class="body" style="color:var(--c-fg-3);margin-top:var(--gap-sm)">September 4, 2025</p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">01 / 19</span>
+                    <span class="line">LSEG · Bangkok</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 2 — AGENDA
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Agenda</div>
+                    <div class="accent-rule"></div>
+                    <ul class="agenda-list">
+                        <li><span class="num">01</span>Education</li>
+                        <li><span class="num">02</span>Working Experiences</li>
+                        <li><span class="num">03</span>Mental Models</li>
+                        <li><span class="num">04</span>Q &amp; A</li>
+                    </ul>
+                </div>
+                <div class="pin-note">
+                    <span class="line">02 / 19</span>
+                    <span class="line">Overview</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 3 — SECTION: EDUCATION
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="section-number">01</div>
+                    <h1>Education</h1>
+                </div>
+                <div class="pin-note">
+                    <span class="line">03 / 19</span>
+                    <span class="line">Early years</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 4 — EDUCATION DETAIL
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="chrome-bar">
+                        <span>Education</span>
+                        <span>01</span>
+                    </div>
+                    <div class="split">
+                        <div class="split-panel">
+                            <div class="company-name">Bodindecha (Sing Singhaseni) 2</div>
+                            <h2>Science &amp; <em>Mathematics</em></h2>
+                            <p class="body">Foundation in analytical thinking and the sciences — the first spark of curiosity.</p>
+                        </div>
+                        <div class="split-panel">
+                            <div class="company-name">KMITL</div>
+                            <h2>Advanced <em>Manufacturing</em> Innovation</h2>
+                            <p class="body">Bridging hardware, software, and process thinking — programming, automation, design, and microcontrollers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pin-note">
+                    <span class="line">04 / 19</span>
+                    <span class="line">Foundations</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 5 — SECTION: WORKING EXPERIENCES
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="section-number">02</div>
+                    <h1>Working <em>Experiences</em></h1>
+                </div>
+                <div class="pin-note">
+                    <span class="line">05 / 19</span>
+                    <span class="line">Career journey</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 6 — HONDA
+                 =========================================== -->
+            <section class="slide">
+                <div class="content" style="max-width:900px">
+                    <div class="chrome-bar">
+                        <span>Working Experiences</span>
+                        <span>02</span>
+                    </div>
+                    <div class="company-block">
+                        <div class="company-name">Honda Automobile (Thailand) Co., Ltd.</div>
+                        <h2>Production Control <em>&amp; Planning</em></h2>
+                        <p class="lead" style="max-width:100%">Orchestrating manufacturing flow — balancing supply, demand, and efficiency on the line.</p>
+                    </div>
+                </div>
+                <div class="pin-note">
+                    <span class="line">06 / 19</span>
+                    <span class="line">Honda · 1st step</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 7 — WESTERN DIGITAL
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="chrome-bar">
+                        <span>Working Experiences</span>
+                        <span>02</span>
+                    </div>
+                    <div class="company-name">Western Digital Storage Technologies (Thailand) Ltd.</div>
+                    <div class="grid-2" style="margin-top:var(--gap-md)">
+                        <div class="grid-item">
+                            <h3>Tooling Engineer</h3>
+                            <p class="body">Precision tooling design and optimization for high-volume storage manufacturing.</p>
+                        </div>
+                        <div class="grid-item">
+                            <h3>Senior <em>Machine Vision</em> Engineer</h3>
+                            <p class="body">Automated optical inspection, computer vision, and quality systems at scale.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pin-note">
+                    <span class="line">07 / 19</span>
+                    <span class="line">Western Digital · Growth</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 8 — LSEG
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="chrome-bar">
+                        <span>Working Experiences</span>
+                        <span>02</span>
+                    </div>
+                    <div class="company-name">LSEG (London Stock Exchange Group)</div>
+                    <h2>Trading Room ·<br><em>Analytics Center</em> of Excellence</h2>
+                    <p class="lead" style="max-width:800px">Senior Python Developer building data-driven analytics for financial markets — where precision meets performance.</p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">08 / 19</span>
+                    <span class="line">LSEG · Present</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 9 — MENTAL MODELS: QUOTE
+                 =========================================== -->
+            <section class="slide">
+                <div class="content" style="max-width:1100px">
+                    <div class="section-number">03</div>
+                    <h1>Mental <em>Models</em></h1>
+                </div>
+                <div class="pin-note">
+                    <span class="line">09 / 19</span>
+                    <span class="line">Think Lazy, Act Smart</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 10 — QUOTE: THINK LAZY
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="quote-mark">"</div>
+                    <div class="quote-text">
+                        Think Lazy, Act Smart<br>
+                        <span style="font-size:var(--lead-size);color:var(--c-fg-2);line-height:1.6">
+                            — Lazy is not bad if you use it to find the smarter way.
+                        </span>
+                    </div>
+                </div>
+                <div class="pin-note">
+                    <span class="line">10 / 19</span>
+                    <span class="line">Core philosophy</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 11 — TIME MANAGEMENT
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Mental Models</div>
+                    <div class="accent-rule"></div>
+                    <h2>Time <em>Management</em></h2>
+                    <p class="lead" style="max-width:700px">Plan your day with intention — every minute is a choice.</p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">11 / 19</span>
+                    <span class="line">🕒 Intention</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 12 — SMART MULTITASKING
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Mental Models</div>
+                    <div class="accent-rule"></div>
+                    <h2>Smart <em>Multitasking</em></h2>
+                    <p class="lead" style="max-width:700px">Pair fun with low-focus tasks — games + learning audio = purpose with play.</p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">12 / 19</span>
+                    <span class="line">🔁 Purposeful pairing</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 13 — NOTE TAKING
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Mental Models</div>
+                    <div class="accent-rule"></div>
+                    <h2>Note <em>Taking</em></h2>
+                    <p class="lead" style="max-width:750px">Offload your thoughts to paper or digital tools. It frees up brain "RAM" for deeper thinking and creativity.</p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">13 / 19</span>
+                    <span class="line">📝 Clear mind</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 14 — CLEAR MIND → PURPOSEFUL ACTION
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Mental Models</div>
+                    <div class="accent-rule"></div>
+                    <h2>Clear Mind →<br><em>Purposeful</em> Action</h2>
+                    <ul class="list-num">
+                        <li><span>Break it down: <strong style="color:var(--c-fg)">To-do → Doing → Done</strong></span></li>
+                        <li><span>What's the one high-impact thing I can do now?</span></li>
+                    </ul>
+                </div>
+                <div class="pin-note">
+                    <span class="line">14 / 19</span>
+                    <span class="line">🎯 Focus</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 15 — WHEN STUCK: MOVE SMART
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Mental Models</div>
+                    <div class="accent-rule"></div>
+                    <h2>When Stuck —<br><em>Move Smart</em></h2>
+                    <ul class="list-num">
+                        <li><span>Ask smart questions</span></li>
+                        <li><span>Try first, then ask for help</span></li>
+                        <li><span>Prioritize and organize effectively</span></li>
+                    </ul>
+                </div>
+                <div class="pin-note">
+                    <span class="line">15 / 19</span>
+                    <span class="line">🧭 Navigate</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 16 — COMMUNICATION SKILLS
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Skills</div>
+                    <div class="accent-rule"></div>
+                    <h2>Communication <em>Skills</em></h2>
+                    <ul class="list-num">
+                        <li><span>Explain ideas simply</span></li>
+                        <li><span>Listen actively</span></li>
+                        <li><span>Summarize before speaking</span></li>
+                    </ul>
+                </div>
+                <div class="pin-note">
+                    <span class="line">16 / 19</span>
+                    <span class="line">🗣️ Clarity</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 17 — SHARPEN ENGLISH
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Skills</div>
+                    <div class="accent-rule"></div>
+                    <h2>Sharpen Your <em>English</em></h2>
+                    <ul class="list-num">
+                        <li><span>English = Global access</span></li>
+                        <li><span>Don't aim for perfection — aim for clarity</span></li>
+                        <li><span>A bridge to opportunity</span></li>
+                    </ul>
+                </div>
+                <div class="pin-note">
+                    <span class="line">17 / 19</span>
+                    <span class="line">🌍 Bridge</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 18 — GREATNESS IS BUILT DAILY
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Growth</div>
+                    <div class="accent-rule"></div>
+                    <h2>Greatness Is <em>Built Daily</em></h2>
+                    <p class="lead" style="max-width:600px">1% better every day = massive growth.<br>Small steps compound over time.</p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">18 / 19</span>
+                    <span class="line">📈 Compound</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 19 — AI FOR LEARNING
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Growth</div>
+                    <div class="accent-rule"></div>
+                    <h2>AI for <em>Learning</em></h2>
+                    <div class="grid-2" style="margin-top:var(--gap-md)">
+                        <div class="grid-item">
+                            <h3 style="font-size:var(--h3-size)">Use Wisely</h3>
+                            <p class="body">Personalized feedback, 24/7 access, efficiency — but verify facts and avoid over-reliance.</p>
+                        </div>
+                        <div class="grid-item">
+                            <h3 style="font-size:var(--h3-size)">Think Deeply</h3>
+                            <p class="body">AI is a support tool. The thinking, the curiosity, the growth — that's yours.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="pin-note">
+                    <span class="line">19 / 19</span>
+                    <span class="line">🤖 Tool, not crutch</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 20 — THINK AGAIN
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">Growth</div>
+                    <div class="accent-rule"></div>
+                    <h2>Think Again —<br><em>Challenge</em> Yourself</h2>
+                    <p class="lead" style="max-width:600px">Ask: <em>What if I'm wrong?</em><br>Be open to feedback. Keep questioning your assumptions.</p>
+                    <p class="body" style="color:var(--c-accent);font-family:var(--font-mono);font-size:var(--body-size);margin-top:var(--gap-md)">
+                        Re-thinking is not weakness. It's wisdom.
+                    </p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">20 / 19</span>
+                    <span class="line">🔍 Self-awareness</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 21 — FINAL ADVICE
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="kicker">A New Chapter Begins</div>
+                    <div class="accent-rule"></div>
+                    <h2>Unlock Your <em>Best Self</em></h2>
+                    <div class="advice-grid">
+                        <div class="advice-item">
+                            <span class="adv-icon">◆</span>
+                            <span class="adv-text">Stay curious</span>
+                        </div>
+                        <div class="advice-item">
+                            <span class="adv-icon">◆</span>
+                            <span class="adv-text">Don't chase perfection — just start</span>
+                        </div>
+                        <div class="advice-item">
+                            <span class="adv-icon">◆</span>
+                            <span class="adv-text">Grab opportunity when it comes</span>
+                        </div>
+                        <div class="advice-item">
+                            <span class="adv-icon">◆</span>
+                            <span class="adv-text">Train your brain — don't overload it</span>
+                        </div>
+                        <div class="advice-item">
+                            <span class="adv-icon">◆</span>
+                            <span class="adv-text">Communication is underrated — practice it</span>
+                        </div>
+                        <div class="advice-item">
+                            <span class="adv-icon">◆</span>
+                            <span class="adv-text">Be lazy — but smart-lazy</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="pin-note">
+                    <span class="line">21 / 19</span>
+                    <span class="line">🎓 Final advice</span>
+                </div>
+            </section>
+
+            <!-- ===========================================
+                 SLIDE 22 — Q&A
+                 =========================================== -->
+            <section class="slide">
+                <div class="content">
+                    <div class="section-number">04</div>
+                    <h1>Q &amp; A</h1>
+                    <p class="lead" style="max-width:600px;margin-top:var(--gap-md)">
+                        Thank you — let's talk.
+                    </p>
+                </div>
+                <div class="pin-note">
+                    <span class="line">22 / 22</span>
+                    <span class="line">^__________^</span>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===========================================
+         NAVIGATION DOTS (deck chrome)
+         =========================================== -->
+    <div class="nav-dots" id="navDots"></div>
+
+    <!-- ===========================================
+         SLIDE COUNTER (deck chrome)
+         =========================================== -->
+    <div class="slide-counter" id="slideCounter">01 / 22</div>
+
+    <!-- ===========================================
+         INLINE EDITING — HOTZONE + TOGGLE
+         JS-based show/hide with 400ms delay.
+         =========================================== -->
+    <div class="edit-hotzone" id="editHotzone"></div>
+    <button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏️ Edit</button>
+
+    <!-- ===========================================
+         SLIDE PRESENTATION CONTROLLER
+         Handles: keyboard, touch, wheel navigation,
+         stage scaling, nav dots, inline editing.
+         =========================================== -->
+    <script>
+        /* ===========================================
+           SLIDE PRESENTATION CONTROLLER
+           =========================================== */
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.totalSlides = this.slides.length;
+                this.currentSlide = 0;
+                this.stage = document.getElementById('deckStage');
+                this.navDots = document.getElementById('navDots');
+                this.counter = document.getElementById('slideCounter');
+                this.touchStartX = 0;
+                this.touchStartY = 0;
+                this.editMode = false;
+
+                this.setupStageScale();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.buildNavDots();
+                this.setupInlineEditing();
+                this.showSlide(0);
+            }
+
+            /* --- Stage Scaling (fixed 16:9) --- */
+            setupStageScale() {
+                const scale = () => {
+                    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (window.innerHeight - 1080 * factor) / 2;
+                    this.stage.style.transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + factor + ')';
+                };
+                scale();
+                window.addEventListener('resize', scale);
+            }
+
+            /* --- Keyboard Navigation --- */
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    // Skip if editing text
+                    if (document.activeElement && document.activeElement.getAttribute('contenteditable')) return;
+
+                    switch (e.key) {
+                        case 'ArrowRight':
+                        case 'ArrowDown':
+                        case ' ':
+                            e.preventDefault();
+                            this.nextSlide();
+                            break;
+                        case 'ArrowLeft':
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            this.prevSlide();
+                            break;
+                        case 'Home':
+                            e.preventDefault();
+                            this.showSlide(0);
+                            break;
+                        case 'End':
+                            e.preventDefault();
+                            this.showSlide(this.totalSlides - 1);
+                            break;
+                    }
+                });
+            }
+
+            /* --- Touch / Swipe Navigation --- */
+            setupTouchNav() {
+                this.stage.addEventListener('touchstart', (e) => {
+                    this.touchStartX = e.changedTouches[0].screenX;
+                    this.touchStartY = e.changedTouches[0].screenY;
+                }, { passive: true });
+
+                this.stage.addEventListener('touchend', (e) => {
+                    const dx = e.changedTouches[0].screenX - this.touchStartX;
+                    const dy = e.changedTouches[0].screenY - this.touchStartY;
+
+                    // Only trigger if horizontal swipe is dominant
+                    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+                        if (dx < 0) this.nextSlide();
+                        else this.prevSlide();
+                    }
+                }, { passive: true });
+            }
+
+            /* --- Mouse Wheel Navigation --- */
+            setupWheelNav() {
+                let wheelTimeout = null;
+                this.stage.addEventListener('wheel', (e) => {
+                    // Prevent rapid scrolling
+                    if (wheelTimeout) return;
+                    wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 600);
+
+                    if (e.deltaY > 0) this.nextSlide();
+                    else this.prevSlide();
+                }, { passive: true });
+            }
+
+            /* --- Build Navigation Dots --- */
+            buildNavDots() {
+                for (let i = 0; i < this.totalSlides; i++) {
+                    const dot = document.createElement('button');
+                    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+                    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                    dot.addEventListener('click', () => this.showSlide(i));
+                    this.navDots.appendChild(dot);
+                }
+            }
+
+            /* --- Show Slide --- */
+            showSlide(index) {
+                this.currentSlide = Math.max(0, Math.min(index, this.totalSlides - 1));
+
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                    slide.classList.toggle('visible', i === this.currentSlide);
+                });
+
+                // Update nav dots
+                const dots = this.navDots.querySelectorAll('.nav-dot');
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === this.currentSlide);
+                });
+
+                // Update counter
+                const num = String(this.currentSlide + 1).padStart(2, '0');
+                const total = String(this.totalSlides).padStart(2, '0');
+                this.counter.textContent = num + ' / ' + total;
+            }
+
+            nextSlide() {
+                if (this.currentSlide < this.totalSlides - 1) {
+                    this.showSlide(this.currentSlide + 1);
+                }
+            }
+
+            prevSlide() {
+                if (this.currentSlide > 0) {
+                    this.showSlide(this.currentSlide - 1);
+                }
+            }
+
+            goToSlide(index) {
+                this.showSlide(index);
+            }
+
+            /* --- Inline Editing ---
+             * JS-based hover show/hide with 400ms grace period.
+             * Do NOT use CSS ~ sibling selector (breaks hover chain). */
+            setupInlineEditing() {
+                const hotzone = document.getElementById('editHotzone');
+                const toggle = document.getElementById('editToggle');
+                let hideTimeout = null;
+                const self = this;
+
+                // Hotzone hover
+                hotzone.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                    toggle.classList.add('show');
+                });
+                hotzone.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!self.editMode) toggle.classList.remove('show');
+                    }, 400);
+                });
+
+                // Toggle button hover
+                toggle.addEventListener('mouseenter', () => {
+                    clearTimeout(hideTimeout);
+                });
+                toggle.addEventListener('mouseleave', () => {
+                    hideTimeout = setTimeout(() => {
+                        if (!self.editMode) toggle.classList.remove('show');
+                    }, 400);
+                });
+
+                // Toggle click
+                toggle.addEventListener('click', () => {
+                    self.toggleEditMode();
+                });
+
+                // Hotzone click
+                hotzone.addEventListener('click', () => {
+                    self.toggleEditMode();
+                });
+
+                // Keyboard shortcut: E (skip when editing text)
+                document.addEventListener('keydown', (e) => {
+                    if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                        self.toggleEditMode();
+                    }
+                });
+            }
+
+            toggleEditMode() {
+                this.editMode = !this.editMode;
+                const toggle = document.getElementById('editToggle');
+                const activeSlide = this.slides[this.currentSlide];
+
+                if (this.editMode) {
+                    toggle.classList.add('active');
+                    toggle.textContent = '🔒 Done Editing';
+                    // Make all text in the active slide editable
+                    activeSlide.querySelectorAll('h1, h2, h3, p, li span, .kicker, .company-name, .company-role, .adv-text, .quote-text, .quote-attribution, .body, .lead').forEach(el => {
+                        if (!el.closest('.pin-note') && !el.closest('.chrome-bar')) {
+                            el.setAttribute('contenteditable', 'true');
+                            el.style.outline = '1px dashed rgba(232,216,92,0.3)';
+                            el.style.borderRadius = '2px';
+                            el.style.padding = '2px 4px';
+                            el.style.cursor = 'text';
+                        }
+                    });
+                } else {
+                    toggle.classList.remove('active');
+                    toggle.textContent = '✏️ Edit';
+                    // Save and disable editing
+                    activeSlide.querySelectorAll('[contenteditable]').forEach(el => {
+                        el.removeAttribute('contenteditable');
+                        el.style.outline = '';
+                        el.style.borderRadius = '';
+                        el.style.padding = '';
+                        el.style.cursor = '';
+                    });
+                    // Auto-save to localStorage
+                    try {
+                        const html = document.querySelector('.deck-stage').innerHTML;
+                        localStorage.setItem('lseg-presentation-html', html);
+                    } catch(e) {}
+                }
+            }
+        }
+
+        /* --- Instantiate --- */
+        const presentation = new SlidePresentation();
+
+        /* --- Restore from localStorage if available --- */
+        (function() {
+            try {
+                const saved = localStorage.getItem('lseg-presentation-html');
+                if (saved) {
+                    // Check if user wants to restore (silent restore)
+                    const stage = document.getElementById('deckStage');
+                    // Don't auto-restore on load; user can reload manually
+                }
+            } catch(e) {}
+        })();
+    </script>
+</body>
+</html>
