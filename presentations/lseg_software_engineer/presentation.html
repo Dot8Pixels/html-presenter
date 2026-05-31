@@ -213,6 +213,13 @@
             align-items: center;
             justify-content: center;
             padding: var(--pad-y) var(--pad-x);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        /* Allow text selection in edit mode */
+        .edit-mode .slide {
+            user-select: text;
+            -webkit-user-select: text;
         }
         /* Subtle glow atmosphere via pseudo-element */
         .slide::before {
@@ -550,6 +557,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             padding: 0;
+            position: relative;
         }
         .nav-dot:hover {
             background: rgba(199, 36, 122, 0.5);
@@ -557,6 +565,31 @@
         .nav-dot.active {
             background: var(--c-accent);
             box-shadow: 0 0 8px rgba(199, 36, 122, 0.4);
+        }
+        /* Tooltip on hover */
+        .nav-dot::after {
+            content: attr(data-slide);
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            background: rgba(11, 20, 36, 0.9);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .nav-dot:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
         }
 
         /* === COUNTER === */
@@ -618,8 +651,8 @@
             max-width: 1300px;
         }
         .slide-title .kicker {
-            font-size: 18px;
-            letter-spacing: 0.15em;
+            font-size: 28px;
+            letter-spacing: 0.18em;
             margin-bottom: var(--gap-lg);
         }
 
@@ -659,10 +692,10 @@
         .company-block:last-child { margin-bottom: 0; }
         .company-name {
             font-family: var(--font-mono);
-            font-size: var(--label-size);
-            font-weight: 400;
+            font-size: 22px;
+            font-weight: 500;
             color: var(--c-accent);
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
             margin-bottom: var(--gap-sm);
         }
@@ -681,6 +714,536 @@
         }
         .highlight-gold {
             color: var(--c-fg);
+        }
+
+        /* ===========================================
+           SLIDE TRANSITIONS
+           Smooth fade + micro-zoom between slides.
+           =========================================== */
+        .slide {
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.97);
+        }
+        .slide.active,
+        .slide.visible {
+            transform: scale(1);
+        }
+
+        /* --- Content entrance (staggered fade-up on active slide) --- */
+        .slide.active .content > * {
+            animation: slideContentIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .slide.active .content > *:nth-child(1) { animation-delay: 0.05s; }
+        .slide.active .content > *:nth-child(2) { animation-delay: 0.15s; }
+        .slide.active .content > *:nth-child(3) { animation-delay: 0.25s; }
+        .slide.active .content > *:nth-child(4) { animation-delay: 0.35s; }
+        .slide.active .content > *:nth-child(5) { animation-delay: 0.45s; }
+        .slide.active .content > *:nth-child(6) { animation-delay: 0.55s; }
+        .slide.active .content > *:nth-child(7) { animation-delay: 0.65s; }
+        .slide.active .content > *:nth-child(8) { animation-delay: 0.75s; }
+
+        @keyframes slideContentIn {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Pin-note fades in separately --- */
+        .slide.active .pin-note {
+            animation: pinFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+        }
+        @keyframes pinFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Section number scales in --- */
+        .slide.active .section-number {
+            animation: sectionNumIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes sectionNumIn {
+            from { opacity: 0; transform: scale(0.6); }
+            to   { opacity: 1; transform: scale(1); }
+        }
+
+        /* ===========================================
+           AMBIENT BACKGROUND ANIMATION
+           Slow, subtle drift of the glow orbs.
+           =========================================== */
+        @keyframes ambientDrift {
+            0%   { background-position: 18% 82%, 82% 18%, 50% 50%; }
+            33%  { background-position: 22% 78%, 78% 22%, 48% 52%; }
+            66%  { background-position: 15% 85%, 85% 15%, 52% 48%; }
+            100% { background-position: 18% 82%, 82% 18%, 50% 50%; }
+        }
+        .slide.active::before {
+            animation: ambientDrift 12s ease-in-out infinite;
+            background-size: 100% 100%, 100% 100%, 100% 100%;
+        }
+
+        /* ===========================================
+           ALWAYS-ON LIVELY ANIMATIONS
+           Subtle continuous motion on active slides.
+           =========================================== */
+
+        /* --- Gentle content float (breathe 3px over 4s) --- */
+        .slide.active .content {
+            animation: contentBreathe 4s ease-in-out infinite;
+        }
+        @keyframes contentBreathe {
+            0%, 100% { transform: translateY(0); }
+            50%      { transform: translateY(-3px); }
+        }
+
+        /* --- Corner decorations gentle pulse --- */
+        .slide.active .corner {
+            animation: cornerPulse 3s ease-in-out infinite;
+        }
+        .slide.active .corner.tl { animation-delay: 0s; }
+        .slide.active .corner.tr { animation-delay: 0.4s; }
+        .slide.active .corner.bl { animation-delay: 0.8s; }
+        .slide.active .corner.br { animation-delay: 1.2s; }
+        @keyframes cornerPulse {
+            0%, 100% { opacity: 0.4; }
+            50%      { opacity: 0.7; }
+        }
+
+        /* --- Headline golden glow pulse (very subtle) --- */
+        .slide.active h1, .slide.active h2, .slide.active .display {
+            animation: goldGlow 5s ease-in-out infinite;
+        }
+        @keyframes goldGlow {
+            0%, 100% { text-shadow: 0 0 0px rgba(245, 200, 66, 0); }
+            50%      { text-shadow: 0 0 30px rgba(245, 200, 66, 0.08), 0 0 60px rgba(245, 200, 66, 0.04); }
+        }
+
+        /* --- Accent rule shimmer (gradient moves) --- */
+        .slide.active .accent-rule {
+            animation: accentShimmer 3s ease-in-out infinite;
+            background-size: 200% 100%;
+        }
+        @keyframes accentShimmer {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* --- Kicker gentle fade pulse --- */
+        .slide.active .kicker {
+            animation: kickerBreathe 4s ease-in-out infinite;
+        }
+        @keyframes kickerBreathe {
+            0%, 100% { opacity: 0.9; }
+            50%      { opacity: 1; }
+        }
+
+        /* --- Pin-note subtle pulse --- */
+        .slide.active .pin-note {
+            animation: pinGlow 5s ease-in-out infinite;
+        }
+        @keyframes pinGlow {
+            0%, 100% { opacity: 0.8; }
+            50%      { opacity: 1; }
+        }
+
+        /* --- Section number gentle scale breathe --- */
+        .slide.active .section-number {
+            animation: sectionBreathe 6s ease-in-out infinite;
+        }
+        @keyframes sectionBreathe {
+            0%, 100% { transform: scale(1); }
+            50%      { transform: scale(1.02); }
+        }
+
+        /* ===========================================
+           CLICK-TO-REVEAL (progressive disclosure)
+           Items with [data-reveal] are hidden initially
+           and revealed one by one on Space/click.
+           =========================================== */
+        [data-reveal] {
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        [data-reveal].revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        [data-reveal].revealed-sequential {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===========================================
+           3D MOUSE PARALLAX TILT
+           Subtle stage rotation based on cursor.
+           Applied via CSS custom properties set by JS.
+           =========================================== */
+        .deck-stage {
+            transition: transform 0.08s ease-out;
+            will-change: transform;
+        }
+
+        /* --- Quote mark flourish --- */
+        .slide.active .quote-mark {
+            animation: quoteMarkIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes quoteMarkIn {
+            from { opacity: 0; transform: translateY(-20px) scale(0.8); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* ===========================================
+           PROGRESS BAR (top of viewport)
+           =========================================== */
+        .progress-track {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 9999;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--c-accent), var(--c-fg));
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0 2px 2px 0;
+        }
+
+        /* ===========================================
+           FULLSCREEN BUTTON
+           =========================================== */
+        .fs-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 1001;
+            background: rgba(11, 20, 36, 0.5);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 8px 12px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1;
+        }
+        .fs-btn:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(11, 20, 36, 0.8);
+            border-color: var(--c-accent-dim);
+        }
+        .fs-btn .icon { font-size: 16px; }
+
+        /* ===========================================
+           KEYBOARD HELP OVERLAY
+           =========================================== */
+        .help-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(6, 13, 26, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .help-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .help-panel {
+            background: rgba(17, 34, 64, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px 48px;
+            max-width: 560px;
+            width: 90%;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+        }
+        .help-panel h3 {
+            font-family: var(--font-display);
+            font-size: 32px;
+            font-style: italic;
+            color: var(--c-fg);
+            margin: 0 0 24px 0;
+            text-align: center;
+        }
+        .help-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+        }
+        .help-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-body);
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .help-key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 28px;
+            padding: 0 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 5px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--c-accent);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+        .help-close {
+            display: block;
+            margin: 24px auto 0 auto;
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 24px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .help-close:hover {
+            color: rgba(255, 255, 255, 0.8);
+            border-color: var(--c-accent-dim);
+        }
+
+        /* ===========================================
+           LASER POINTER MODE
+           PowerPoint-style red laser dot with
+           soft outer glow and projector beam.
+           =========================================== */
+        .laser-pointer {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99998;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 60, 60, 0.9) 0%, rgba(255, 60, 60, 0.3) 30%, transparent 70%);
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            filter: drop-shadow(0 0 20px rgba(255, 60, 60, 0.4));
+        }
+        .laser-pointer.active {
+            opacity: 1;
+        }
+        /* Inner bright core */
+        .laser-pointer::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #FF4444;
+            box-shadow:
+                0 0 12px rgba(255, 60, 60, 0.9),
+                0 0 40px rgba(255, 60, 60, 0.4),
+                0 0 80px rgba(255, 60, 60, 0.15);
+        }
+        /* Projector beam line (top to cursor) */
+        .laser-beam {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99997;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .laser-beam.active {
+            opacity: 0.12;
+        }
+        /* Laser color variants */
+        .laser-pointer.color-red::after { background: #FF4444; box-shadow: 0 0 12px rgba(255,60,60,0.9), 0 0 40px rgba(255,60,60,0.4), 0 0 80px rgba(255,60,60,0.15); }
+        .laser-pointer.color-green::after { background: #44FF88; box-shadow: 0 0 12px rgba(68,255,136,0.9), 0 0 40px rgba(68,255,136,0.4), 0 0 80px rgba(68,255,136,0.15); }
+        .laser-pointer.color-magenta::after { background: #C7247A; box-shadow: 0 0 12px rgba(199,36,122,0.9), 0 0 40px rgba(199,36,122,0.4), 0 0 80px rgba(199,36,122,0.15); }
+        .laser-pointer.color-green { background: radial-gradient(circle, rgba(68,255,136,0.9) 0%, rgba(68,255,136,0.3) 30%, transparent 70%); }
+        .laser-pointer.color-magenta { background: radial-gradient(circle, rgba(199,36,122,0.9) 0%, rgba(199,36,122,0.3) 30%, transparent 70%); }
+
+        /* ===========================================
+           LASER TRAIL CANVAS
+           Fading comet trail when dragging.
+           =========================================== */
+        .laser-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 99996;
+            pointer-events: none;
+        }
+
+        /* Toast notification when laser activates */
+        .laser-toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100000;
+            background: rgba(6, 13, 26, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .laser-toast.show {
+            opacity: 1;
+        }
+        .laser-toast .toast-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #FF4444;
+            box-shadow: 0 0 8px rgba(255, 60, 60, 0.6);
+            flex-shrink: 0;
+        }
+        .laser-toast .toast-key {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            color: var(--c-accent);
+        }
+
+        /* --- Chrome auto-hide when inactive --- */
+        .chrome-hide .nav-dots,
+        .chrome-hide .slide-counter,
+        .chrome-hide .fs-btn {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .nav-dots,
+        .slide-counter,
+        .fs-btn {
+            transition: opacity 0.6s ease;
+        }
+
+        /* ===========================================
+           SECTION SLIDE VISUAL UPGRADE
+           =========================================== */
+        .section-number {
+            position: relative;
+            display: inline-block;
+        }
+        .section-number::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--c-accent), var(--c-fg));
+            border-radius: 1px;
+        }
+
+        /* --- Quote slide extra polish --- */
+        .slide.active .quote-text {
+            animation: quoteTextIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+        @keyframes quoteTextIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Grid items subtle card feel --- */
+        .grid-item {
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+        .grid-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* --- Split panels get subtle top border accent --- */
+        .split-panel {
+            position: relative;
+        }
+        .split-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--c-accent), var(--c-fg));
+            border-radius: 1px;
+        }
+
+        /* ===========================================
+           REDUCED MOTION — disable all animations
+           =========================================== */
+        @media (prefers-reduced-motion: reduce) {
+            .slide {
+                transition: none;
+                transform: none;
+            }
+            .slide.active::before,
+            .slide.active .content,
+            .slide.active .corner,
+            .slide.active h1, .slide.active h2, .slide.active .display,
+            .slide.active .accent-rule,
+            .slide.active .kicker,
+            .slide.active .pin-note,
+            .slide.active .section-number,
+            .slide.active .content > *,
+            .slide.active .quote-mark,
+            .slide.active .quote-text {
+                animation: none;
+            }
+            [data-reveal] {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+            .deck-stage {
+                transition: none !important;
+            }
         }
 
     </style>
@@ -1214,6 +1777,11 @@
     </div>
 
     <!-- ===========================================
+         PROGRESS BAR
+         =========================================== -->
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+    <!-- ===========================================
          NAVIGATION DOTS (deck chrome)
          =========================================== -->
     <div class="nav-dots" id="navDots"></div>
@@ -1222,6 +1790,55 @@
          SLIDE COUNTER (deck chrome)
          =========================================== -->
     <div class="slide-counter" id="slideCounter">01 / 26</div>
+
+    <!-- ===========================================
+         FULLSCREEN BUTTON
+         =========================================== -->
+    <button class="fs-btn" id="fsBtn" title="Fullscreen (F)">
+        <span class="icon">⛶</span>
+        <span>Fullscreen</span>
+    </button>
+
+    <!-- ===========================================
+         KEYBOARD HELP OVERLAY
+         =========================================== -->
+    <div class="help-overlay" id="helpOverlay">
+        <div class="help-panel">
+            <h3>Keyboard Shortcuts</h3>
+            <div class="help-grid">
+                <div class="help-item"><span class="help-key">→</span> Next slide</div>
+                <div class="help-item"><span class="help-key">←</span> Previous slide</div>
+                <div class="help-item"><span class="help-key">Space</span> Next slide</div>
+                <div class="help-item"><span class="help-key">Home</span> First slide</div>
+                <div class="help-item"><span class="help-key">End</span> Last slide</div>
+                <div class="help-item"><span class="help-key">F</span> Fullscreen</div>
+                <div class="help-item"><span class="help-key">L</span> Laser pointer</div>
+                <div class="help-item"><span class="help-key">C</span> Laser color</div>
+                <div class="help-item"><span class="help-key">Drag</span> Laser trail</div>
+                <div class="help-item"><span class="help-key">E</span> Edit slide</div>
+                <div class="help-item"><span class="help-key">?</span> This help</div>
+                <div class="help-item"><span class="help-key">Esc</span> Close help</div>
+                <div class="help-item"><span class="help-key">Click</span> Reveal next</div>
+                <div class="help-item"><span class="help-key">P</span> Toggle 3D tilt</div>
+            </div>
+            <button class="help-close" id="helpClose">Close</button>
+        </div>
+    </div>
+
+    <!-- ===========================================
+         LASER POINTER ELEMENTS
+         =========================================== -->
+    <div class="laser-pointer" id="laserPointer"></div>
+    <canvas class="laser-canvas" id="laserCanvas"></canvas>
+    <div class="laser-beam" id="laserBeam"></div>
+    <div class="laser-toast" id="laserToast">
+        <span class="toast-dot"></span>
+        <span>Laser pointer active</span>
+        <span class="toast-key">L</span>
+        <span>toggle · </span>
+        <span class="toast-key">C</span>
+        <span>color</span>
+    </div>
 
     <!-- ===========================================
          INLINE EDITING — HOTZONE + TOGGLE
@@ -1237,7 +1854,10 @@
          =========================================== -->
     <script>
         /* ===========================================
-           SLIDE PRESENTATION CONTROLLER
+           SLIDE PRESENTATION CONTROLLER (ENHANCED)
+           Transitions, fullscreen, laser pointer,
+           help overlay, progress bar, hash nav,
+           chrome auto-hide, and more.
            =========================================== */
         class SlidePresentation {
             constructor() {
@@ -1247,27 +1867,67 @@
                 this.stage = document.getElementById('deckStage');
                 this.navDots = document.getElementById('navDots');
                 this.counter = document.getElementById('slideCounter');
+                this.progressFill = document.getElementById('progressFill');
+                this.fsBtn = document.getElementById('fsBtn');
+                this.helpOverlay = document.getElementById('helpOverlay');
+                this.laserEl = document.getElementById('laserPointer');
                 this.touchStartX = 0;
                 this.touchStartY = 0;
                 this.editMode = false;
+                this.laserMode = false;
+                this.helpOpen = false;
+                this.chromeTimer = null;
+                this.isTransitioning = false;
+                this.revealIndex = 0;
+                this.parallaxEnabled = true;
+                this._rotY = 0;
+                this._rotX = 0;
 
+                this.addCornerDecorations();
                 this.setupStageScale();
                 this.setupKeyboardNav();
                 this.setupTouchNav();
                 this.setupWheelNav();
                 this.buildNavDots();
                 this.setupInlineEditing();
+                this.setupFullscreen();
+                this.setupHelpOverlay();
+                this.setupLaserPointer();
+                this.setupChromeAutoHide();
+                this.setupHashNav();
+                this.setupParallax();
+                this.setupClickReveal();
                 this.setCurrentDate();
-                this.showSlide(0);
+                this.showSlide(this.getSlideFromHash(), true);
+            }
+
+            /* --- Add corner decorations to all slides --- */
+            addCornerDecorations() {
+                const positions = ['tl', 'tr', 'bl', 'br'];
+                this.slides.forEach(slide => {
+                    // Skip if already has corners
+                    if (slide.querySelector('.corner')) return;
+                    positions.forEach(pos => {
+                        const corner = document.createElement('div');
+                        corner.className = 'corner ' + pos;
+                        slide.appendChild(corner);
+                    });
+                });
             }
 
             /* --- Stage Scaling (fixed 16:9) --- */
             setupStageScale() {
+                const self = this;
                 const scale = () => {
                     const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
                     const x = (window.innerWidth - 1920 * factor) / 2;
                     const y = (window.innerHeight - 1080 * factor) / 2;
-                    this.stage.style.transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + factor + ')';
+                    let transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + factor + ')';
+                    // Preserve parallax rotation if active
+                    if (self.parallaxEnabled && self._rotY && self._rotX) {
+                        transform += ' rotateY(' + self._rotY + 'deg) rotateX(' + self._rotX + 'deg)';
+                    }
+                    self.stage.style.transform = transform;
                 };
                 scale();
                 window.addEventListener('resize', scale);
@@ -1278,13 +1938,24 @@
                 document.addEventListener('keydown', (e) => {
                     // Skip if editing text
                     if (document.activeElement && document.activeElement.getAttribute('contenteditable')) return;
+                    // Skip if help is open
+                    if (this.helpOpen) {
+                        if (e.key === 'Escape' || e.key === '?') {
+                            e.preventDefault();
+                            this.toggleHelp();
+                        }
+                        return;
+                    }
 
                     switch (e.key) {
                         case 'ArrowRight':
                         case 'ArrowDown':
                         case ' ':
                             e.preventDefault();
-                            this.nextSlide();
+                            // Try reveal first, then advance slide
+                            if (!this.revealNext()) {
+                                this.nextSlide();
+                            }
                             break;
                         case 'ArrowLeft':
                         case 'ArrowUp':
@@ -1298,6 +1969,34 @@
                         case 'End':
                             e.preventDefault();
                             this.showSlide(this.totalSlides - 1);
+                            break;
+                        case 'f':
+                        case 'F':
+                            e.preventDefault();
+                            this.toggleFullscreen();
+                            break;
+                        case 'l':
+                        case 'L':
+                            e.preventDefault();
+                            this.toggleLaser();
+                            break;
+                        case '?':
+                            e.preventDefault();
+                            this.toggleHelp();
+                            break;
+                        case 'p':
+                        case 'P':
+                            e.preventDefault();
+                            this.parallaxEnabled = !this.parallaxEnabled;
+                            if (!this.parallaxEnabled) {
+                                this._rotY = 0;
+                                this._rotX = 0;
+                                // Re-trigger scale update (which reads _rotY/_rotX)
+                                window.dispatchEvent(new Event('resize'));
+                            }
+                            break;
+                        case 'Escape':
+                            if (this.laserMode) this.toggleLaser();
                             break;
                     }
                 });
@@ -1314,7 +2013,6 @@
                     const dx = e.changedTouches[0].screenX - this.touchStartX;
                     const dy = e.changedTouches[0].screenY - this.touchStartY;
 
-                    // Only trigger if horizontal swipe is dominant
                     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
                         if (dx < 0) this.nextSlide();
                         else this.prevSlide();
@@ -1322,14 +2020,12 @@
                 }, { passive: true });
             }
 
-            /* --- Mouse Wheel Navigation --- */
+            /* --- Mouse Wheel Navigation (with throttle) --- */
             setupWheelNav() {
                 let wheelTimeout = null;
                 this.stage.addEventListener('wheel', (e) => {
-                    // Prevent rapid scrolling
-                    if (wheelTimeout) return;
-                    wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 600);
-
+                    if (wheelTimeout || this.isTransitioning) return;
+                    wheelTimeout = setTimeout(() => { wheelTimeout = null; }, 800);
                     if (e.deltaY > 0) this.nextSlide();
                     else this.prevSlide();
                 }, { passive: true });
@@ -1341,19 +2037,28 @@
                     const dot = document.createElement('button');
                     dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
                     dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                    dot.setAttribute('data-slide', String(i + 1).padStart(2, '0'));
                     dot.addEventListener('click', () => this.showSlide(i));
                     this.navDots.appendChild(dot);
                 }
             }
 
-            /* --- Show Slide --- */
-            showSlide(index) {
+            /* --- Show Slide with transition guard --- */
+            showSlide(index, immediate) {
+                if (this.isTransitioning && !immediate) return;
+
                 this.currentSlide = Math.max(0, Math.min(index, this.totalSlides - 1));
 
-                this.slides.forEach((slide, i) => {
-                    slide.classList.toggle('active', i === this.currentSlide);
-                    slide.classList.toggle('visible', i === this.currentSlide);
+                // Reset animations by re-triggering reflow
+                this.slides.forEach((slide) => {
+                    slide.classList.remove('active', 'visible');
+                    // Force reflow to restart animations
+                    void slide.offsetWidth;
                 });
+
+                // Activate target slide
+                const active = this.slides[this.currentSlide];
+                active.classList.add('active', 'visible');
 
                 // Update nav dots
                 const dots = this.navDots.querySelectorAll('.nav-dot');
@@ -1365,6 +2070,31 @@
                 const num = String(this.currentSlide + 1).padStart(2, '0');
                 const total = String(this.totalSlides).padStart(2, '0');
                 this.counter.textContent = num + ' / ' + total;
+
+                // Update progress bar
+                this.updateProgress();
+
+                // Scan for click-to-reveal items
+                this.scanRevealItems();
+
+                // Update hash
+                if (!immediate) {
+                    history.replaceState(null, '', '#slide-' + (this.currentSlide + 1));
+                }
+
+                // Reset transition guard after animation completes
+                this.isTransitioning = true;
+                setTimeout(() => {
+                    this.isTransitioning = false;
+                }, immediate ? 50 : 700);
+
+                // Show chrome briefly on slide change
+                this.showChromeTemporarily();
+            }
+
+            updateProgress() {
+                const pct = ((this.currentSlide + 1) / this.totalSlides) * 100;
+                this.progressFill.style.width = pct + '%';
             }
 
             nextSlide() {
@@ -1383,6 +2113,363 @@
                 this.showSlide(index);
             }
 
+            /* --- Get slide index from URL hash --- */
+            getSlideFromHash() {
+                const match = window.location.hash.match(/slide-(\d+)/);
+                if (match) {
+                    const idx = parseInt(match[1]) - 1;
+                    if (idx >= 0 && idx < this.totalSlides) return idx;
+                }
+                return 0;
+            }
+
+            /* --- Hash navigation --- */
+            setupHashNav() {
+                window.addEventListener('hashchange', () => {
+                    const idx = this.getSlideFromHash();
+                    if (idx !== this.currentSlide) {
+                        this.showSlide(idx, true);
+                    }
+                });
+            }
+
+            /* --- Fullscreen --- */
+            setupFullscreen() {
+                this.fsBtn.addEventListener('click', () => this.toggleFullscreen());
+            }
+
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(() => {});
+                    this.fsBtn.innerHTML = '<span class="icon">⛶</span><span>Exit FS</span>';
+                } else {
+                    document.exitFullscreen().catch(() => {});
+                    this.fsBtn.innerHTML = '<span class="icon">⛶</span><span>Fullscreen</span>';
+                }
+            }
+
+            /* --- Help Overlay --- */
+            setupHelpOverlay() {
+                document.getElementById('helpClose').addEventListener('click', () => this.toggleHelp());
+                this.helpOverlay.addEventListener('click', (e) => {
+                    if (e.target === this.helpOverlay) this.toggleHelp();
+                });
+            }
+
+            toggleHelp() {
+                this.helpOpen = !this.helpOpen;
+                this.helpOverlay.classList.toggle('open', this.helpOpen);
+            }
+
+            /* --- Laser Pointer (always-on comet trail behind cursor) --- */
+            setupLaserPointer() {
+                this.laserBeam = document.getElementById('laserBeam');
+                this.laserToast = document.getElementById('laserToast');
+                this.laserCanvas = document.getElementById('laserCanvas');
+                this.ctx = this.laserCanvas.getContext('2d');
+                this.laserColors = ['red', 'green', 'magenta'];
+                this.laserColorIndex = 0;
+                this.toastTimeout = null;
+                this.trailPoints = [];      // stores {x, y} of recent positions
+                this.maxTrailLength = 18;    // number of trail segments
+                this.trailAnimId = null;
+                this.lastMoveTime = 0;       // timestamp of last mouse move
+                this.trailDecayMs = 60;     // ms after stop to clear trail
+
+                // Size canvas to viewport
+                const resizeCanvas = () => {
+                    this.laserCanvas.width = window.innerWidth;
+                    this.laserCanvas.height = window.innerHeight;
+                };
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+
+                // Mouse move: record point + update dot/beam
+                document.addEventListener('mousemove', (e) => {
+                    if (!this.laserMode) return;
+                    this.laserEl.style.left = e.clientX + 'px';
+                    this.laserEl.style.top = e.clientY + 'px';
+                    this.updateLaserBeam(e.clientX, e.clientY);
+                    this.addTrailPoint(e.clientX, e.clientY);
+                    this.lastMoveTime = Date.now();
+                });
+
+                // C key: cycle color
+                document.addEventListener('keydown', (e) => {
+                    if (!this.laserMode) return;
+                    if (e.key === 'c' || e.key === 'C') {
+                        e.preventDefault();
+                        this.cycleLaserColor();
+                    }
+                });
+
+                // Start the render loop
+                this.startTrailRenderLoop();
+            }
+
+            addTrailPoint(x, y) {
+                // Avoid duplicates that are too close
+                const last = this.trailPoints[this.trailPoints.length - 1];
+                if (last) {
+                    const dist = Math.sqrt((x - last.x) ** 2 + (y - last.y) ** 2);
+                    if (dist < 3) return;
+                }
+                this.trailPoints.push({ x, y });
+                if (this.trailPoints.length > this.maxTrailLength) {
+                    this.trailPoints.shift();
+                }
+            }
+
+            startTrailRenderLoop() {
+                const render = () => {
+                    if (!this.laserMode) {
+                        this.ctx.clearRect(0, 0, this.laserCanvas.width, this.laserCanvas.height);
+                        this.trailPoints = [];
+                        this.trailAnimId = null;
+                        return;
+                    }
+
+                    const ctx = this.ctx;
+                    const color = this.getLaserHexColor();
+                    const pts = this.trailPoints;
+
+                    // Clear entire canvas
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+                    // If mouse stopped for too long, clear trail
+                    if (Date.now() - this.lastMoveTime > this.trailDecayMs) {
+                        this.trailPoints = [];
+                    }
+
+                    if (pts.length < 2) {
+                        this.trailAnimId = requestAnimationFrame(render);
+                        return;
+                    }
+
+                    // Draw trail segments from oldest to newest
+                    for (let i = 1; i < pts.length; i++) {
+                        const t = i / pts.length;  // 0..1, oldest→newest
+                        const alpha = t * 0.9;      // fade from nearly 0 to 0.9
+                        const width = 1 + t * 4;    // thin→thick (1px→5px)
+
+                        ctx.beginPath();
+                        ctx.moveTo(pts[i - 1].x, pts[i - 1].y);
+                        ctx.lineTo(pts[i].x, pts[i].y);
+                        ctx.strokeStyle = color;
+                        ctx.globalAlpha = alpha;
+                        ctx.lineWidth = width;
+                        ctx.lineCap = 'round';
+                        ctx.lineJoin = 'round';
+                        ctx.shadowColor = color;
+                        ctx.shadowBlur = 8 + t * 10;
+                        ctx.stroke();
+                    }
+
+                    // Draw a bright white core on the newest segment
+                    if (pts.length >= 2) {
+                        const last = pts[pts.length - 1];
+                        const prev = pts[pts.length - 2];
+                        ctx.beginPath();
+                        ctx.moveTo(prev.x, prev.y);
+                        ctx.lineTo(last.x, last.y);
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.globalAlpha = 0.5;
+                        ctx.lineWidth = 2;
+                        ctx.shadowBlur = 0;
+                        ctx.stroke();
+                    }
+
+                    ctx.globalAlpha = 1;
+
+                    this.trailAnimId = requestAnimationFrame(render);
+                };
+                this.trailAnimId = requestAnimationFrame(render);
+            }
+
+            getLaserHexColor() {
+                const color = this.laserColors[this.laserColorIndex];
+                const map = { red: '#FF4444', green: '#44FF88', magenta: '#C7247A' };
+                return map[color];
+            }
+
+            updateLaserBeam(cx, cy) {
+                const vw = window.innerWidth;
+                const topX = vw / 2;
+                const topY = -20;
+                const length = Math.sqrt((cx - topX) ** 2 + (cy - topY) ** 2);
+                const angle = Math.atan2(cy - topY, cx - topX) * 180 / Math.PI;
+
+                this.laserBeam.style.width = length + 'px';
+                this.laserBeam.style.left = topX + 'px';
+                this.laserBeam.style.top = topY + 'px';
+                this.laserBeam.style.transformOrigin = '0 0';
+                this.laserBeam.style.transform = 'rotate(' + angle + 'deg)';
+                this.laserBeam.style.background = 'linear-gradient(90deg, rgba(255,60,60,0.15), transparent)';
+                this.laserBeam.style.height = '1px';
+            }
+
+            cycleLaserColor() {
+                this.laserColorIndex = (this.laserColorIndex + 1) % this.laserColors.length;
+                const color = this.laserColors[this.laserColorIndex];
+                const hex = this.getLaserHexColor();
+
+                this.laserColors.forEach(c => this.laserEl.classList.remove('color-' + c));
+                this.laserEl.classList.add('color-' + color);
+
+                const dot = this.laserToast.querySelector('.toast-dot');
+                dot.style.background = hex;
+                dot.style.boxShadow = '0 0 8px ' + hex + '99';
+
+                const beamColors = { red: 'rgba(255,60,60,0.15)', green: 'rgba(68,255,136,0.15)', magenta: 'rgba(199,36,122,0.15)' };
+                this.laserBeam.style.background = 'linear-gradient(90deg, ' + beamColors[color] + ', transparent)';
+
+                this.showToast('Laser: ' + color);
+            }
+
+            toggleLaser() {
+                this.laserMode = !this.laserMode;
+                this.laserEl.classList.toggle('active', this.laserMode);
+                this.laserBeam.classList.toggle('active', this.laserMode);
+                document.body.style.cursor = this.laserMode ? 'none' : '';
+
+                if (this.laserMode) {
+                    this.startTrailRenderLoop();
+                    this.showToast('Laser pointer active');
+                } else {
+                    this.hideToast();
+                    // Canvas cleared in render loop exit branch
+                }
+            }
+
+            showToast(msg) {
+                this.laserToast.classList.add('show');
+                clearTimeout(this.toastTimeout);
+                this.toastTimeout = setTimeout(() => {
+                    this.laserToast.classList.remove('show');
+                }, 2000);
+            }
+
+            hideToast() {
+                this.laserToast.classList.remove('show');
+                clearTimeout(this.toastTimeout);
+            }
+
+            /* --- Chrome Auto-Hide --- */
+            setupChromeAutoHide() {
+                let activityTimeout = null;
+                const self = this;
+
+                const resetChrome = () => {
+                    document.body.classList.remove('chrome-hide');
+                    clearTimeout(activityTimeout);
+                    activityTimeout = setTimeout(() => {
+                        if (!self.editMode && !self.helpOpen) {
+                            document.body.classList.add('chrome-hide');
+                        }
+                    }, 3000);
+                };
+
+                ['mousemove', 'mousedown', 'keydown', 'touchstart'].forEach(ev => {
+                    document.addEventListener(ev, resetChrome, { passive: true });
+                });
+
+                // Initial show
+                resetChrome();
+            }
+
+            showChromeTemporarily() {
+                document.body.classList.remove('chrome-hide');
+                clearTimeout(this.chromeTimer);
+                this.chromeTimer = setTimeout(() => {
+                    if (!this.editMode && !this.helpOpen) {
+                        document.body.classList.add('chrome-hide');
+                    }
+                }, 3000);
+            }
+
+            /* ===========================================
+               CLICK-TO-REVEAL (progressive disclosure)
+               Items with [data-reveal] are revealed
+               one at a time on Space/→/click.
+               =========================================== */
+            scanRevealItems() {
+                const active = this.slides[this.currentSlide];
+                this.revealItems = active.querySelectorAll('[data-reveal]');
+                this.revealIndex = 0;
+                // Hide all initially
+                this.revealItems.forEach(el => {
+                    el.classList.remove('revealed');
+                });
+            }
+
+            revealNext() {
+                if (!this.revealItems || this.revealIndex >= this.revealItems.length) {
+                    return false; // nothing left to reveal
+                }
+                const item = this.revealItems[this.revealIndex];
+                item.classList.add('revealed');
+                this.revealIndex++;
+                this.showChromeTemporarily();
+                return true; // revealed something
+            }
+
+            setupClickReveal() {
+                // Click on the stage reveals next item
+                this.stage.addEventListener('click', (e) => {
+                    if (this.editMode || this.helpOpen) return;
+                    // Don't intercept clicks on interactive elements
+                    if (e.target.closest('button, a, .nav-dots, .fs-btn, .edit-toggle, .edit-hotzone')) return;
+                    if (!this.revealNext()) {
+                        // If nothing to reveal, maybe advance? No — wait for explicit next.
+                    }
+                });
+            }
+
+            /* ===========================================
+               3D MOUSE PARALLAX TILT
+               Subtle stage rotation based on cursor
+               position — adds a premium depth feel.
+               =========================================== */
+            setupParallax() {
+                const self = this;
+                let frameId = null;
+
+                const updateTransform = () => {
+                    const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (window.innerHeight - 1080 * factor) / 2;
+                    let transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + factor + ')';
+                    if (self.parallaxEnabled && self._rotY && self._rotX) {
+                        transform += ' rotateY(' + self._rotY + 'deg) rotateX(' + self._rotX + 'deg)';
+                    }
+                    self.stage.style.transform = transform;
+                };
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!self.parallaxEnabled || self.laserMode) return;
+                    if (frameId) cancelAnimationFrame(frameId);
+
+                    frameId = requestAnimationFrame(() => {
+                        const xp = (e.clientX / window.innerWidth - 0.5) * 2;
+                        const yp = (e.clientY / window.innerHeight - 0.5) * 2;
+                        self._rotY = (xp * 1.2).toFixed(2);
+                        self._rotX = (-yp * 0.8).toFixed(2);
+                        updateTransform();
+                        frameId = null;
+                    });
+                });
+
+                document.addEventListener('mouseleave', () => {
+                    if (!self.parallaxEnabled) return;
+                    self._rotY = 0;
+                    self._rotX = 0;
+                    updateTransform();
+                });
+
+                // Hook into resize via the existing setupStageScale handler
+                // The scale function already preserves rotation
+            }
+
             /* --- Set Current Date --- */
             setCurrentDate() {
                 const el = document.getElementById('currentDate');
@@ -1393,16 +2480,13 @@
                 }
             }
 
-            /* --- Inline Editing ---
-             * JS-based hover show/hide with 400ms grace period.
-             * Do NOT use CSS ~ sibling selector (breaks hover chain). */
+            /* --- Inline Editing --- */
             setupInlineEditing() {
                 const hotzone = document.getElementById('editHotzone');
                 const toggle = document.getElementById('editToggle');
                 let hideTimeout = null;
                 const self = this;
 
-                // Hotzone hover
                 hotzone.addEventListener('mouseenter', () => {
                     clearTimeout(hideTimeout);
                     toggle.classList.add('show');
@@ -1413,7 +2497,6 @@
                     }, 400);
                 });
 
-                // Toggle button hover
                 toggle.addEventListener('mouseenter', () => {
                     clearTimeout(hideTimeout);
                 });
@@ -1423,17 +2506,14 @@
                     }, 400);
                 });
 
-                // Toggle click
                 toggle.addEventListener('click', () => {
                     self.toggleEditMode();
                 });
 
-                // Hotzone click
                 hotzone.addEventListener('click', () => {
                     self.toggleEditMode();
                 });
 
-                // Keyboard shortcut: E (skip when editing text)
                 document.addEventListener('keydown', (e) => {
                     if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
                         self.toggleEditMode();
@@ -1449,7 +2529,7 @@
                 if (this.editMode) {
                     toggle.classList.add('active');
                     toggle.textContent = '🔒 Done Editing';
-                    // Make all text in the active slide editable
+                    document.body.classList.add('edit-mode');
                     activeSlide.querySelectorAll('h1, h2, h3, p, li span, .kicker, .company-name, .company-role, .adv-text, .quote-text, .quote-attribution, .body, .lead').forEach(el => {
                         if (!el.closest('.pin-note') && !el.closest('.chrome-bar')) {
                             el.setAttribute('contenteditable', 'true');
@@ -1459,10 +2539,11 @@
                             el.style.cursor = 'text';
                         }
                     });
+                    document.body.classList.remove('chrome-hide');
                 } else {
                     toggle.classList.remove('active');
                     toggle.textContent = '✏️ Edit';
-                    // Save and disable editing
+                    document.body.classList.remove('edit-mode');
                     activeSlide.querySelectorAll('[contenteditable]').forEach(el => {
                         el.removeAttribute('contenteditable');
                         el.style.outline = '';
@@ -1470,7 +2551,6 @@
                         el.style.padding = '';
                         el.style.cursor = '';
                     });
-                    // Auto-save to localStorage
                     try {
                         const html = document.querySelector('.deck-stage').innerHTML;
                         localStorage.setItem('lseg-presentation-html', html);
@@ -1487,9 +2567,7 @@
             try {
                 const saved = localStorage.getItem('lseg-presentation-html');
                 if (saved) {
-                    // Check if user wants to restore (silent restore)
-                    const stage = document.getElementById('deckStage');
-                    // Don't auto-restore on load; user can reload manually
+                    // Silent restore available; reload page to apply
                 }
             } catch(e) {}
         })();
